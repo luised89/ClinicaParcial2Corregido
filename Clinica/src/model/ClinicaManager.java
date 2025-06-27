@@ -44,7 +44,7 @@ public class ClinicaManager {
     // Registrar nuevo paciente #########
     public boolean registrarPaciente(Paciente paciente) {
         try {
-            String sql = "INSERT INTO pacientes (nombre, documento, cuenta, tipo_sangre, fecha_nacimiento, alergias) "
+            String sql = "INSERT INTO pacientes (nombre, documento, cuenta, sangre, fecha_nacimiento, alergias) "
                     + "VALUES ('" + paciente.getNombre() + "', '" + paciente.getIdentificacion() + "', '"
                     + paciente.getCuenta() + "', '" + paciente.getTipoSangre() + "', '"
                     + paciente.getFechaNacimiento().toString() + "', '" + paciente.getAlergias() + "')";
@@ -103,8 +103,8 @@ public class ClinicaManager {
                         (String) fila.get("Nombre"),
                         (String) fila.get("Documento"),
                         (String) fila.get("Cuenta"),
-                        (String) fila.get("Tipo-Sangre"),
-                        (String) fila.get("fecha_nacimiento"),
+                        (String) fila.get("Sangre"),
+                        (String) fila.get("Fecha_Nacimiento"),
                         (String) fila.get("alergias")
                 );
             }
@@ -122,8 +122,8 @@ public class ClinicaManager {
                     (String) fila.get("Nombre"),
                     (String) fila.get("Documento"),
                     (String) fila.get("Cuenta"),
-                    (String) fila.get("Tipo-Sangre"),
-                    (String) fila.get("Fecha-Nacimiento"),
+                    (String) fila.get("Sangre"),
+                    (String) fila.get("Fecha_Nacimiento"),
                     (String) fila.get("Alergias")
             ));
         }

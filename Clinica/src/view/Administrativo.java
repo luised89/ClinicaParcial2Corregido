@@ -4,17 +4,26 @@ package view;
  *
  * @author Luis
  */
-
+import Conection.Accesbd;
 import model.ClinicaManager;
 import model.Paciente;
 import model.Medico;
 import model.Administrativomodel;
 import java.time.LocalDate;
 import java.util.List;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 
 public class Administrativo extends javax.swing.JFrame {
+    
+    
+    String usrt = Accesbd.usuarioEncontrado;
     
     private ClinicaManager manager;
     public Administrativo() {
@@ -27,7 +36,7 @@ public class Administrativo extends javax.swing.JFrame {
     private void cargarDatosIniciales() {
         try {
         List<Paciente> pacientes = manager.listarPacientes();
-        System.out.println("=== LISTADO DE PACIENTES ===");
+        /**System.out.println("=== LISTADO DE PACIENTES ===");
         System.out.printf("%-20s %-15s %-10s %-10s %-15s %s%n", 
             "Nombre", "Documento", "Cuenta", "Tipo Sangre", "Nacimiento", "Alergias");
         
@@ -39,7 +48,10 @@ public class Administrativo extends javax.swing.JFrame {
                 p.getTipoSangre(),
                 p.getFechaNacimiento(),
                 p.getAlergias());
+                * 
+        
         });
+        */
         
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, 
@@ -73,6 +85,9 @@ public class Administrativo extends javax.swing.JFrame {
         CrearPaciente = new javax.swing.JMenuItem();
         crearmedic = new javax.swing.JMenuItem();
         crearadmin = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        VerPacientes = new javax.swing.JMenuItem();
+        jMenuItem5 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
@@ -83,7 +98,7 @@ public class Administrativo extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Acceso Administrativo");
 
-        jLabel2.setText("usuario");
+        jLabel2.setText(usrt);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -163,6 +178,21 @@ public class Administrativo extends javax.swing.JFrame {
 
         jMenuBar1.add(crearmedico);
 
+        jMenu3.setText("Consulta");
+
+        VerPacientes.setText("Paciente");
+        VerPacientes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VerPacientesActionPerformed(evt);
+            }
+        });
+        jMenu3.add(VerPacientes);
+
+        jMenuItem5.setText("Medico");
+        jMenu3.add(jMenuItem5);
+
+        jMenuBar1.add(jMenu3);
+
         jMenu4.setText("Historial");
 
         jMenuItem7.setText("Paciente");
@@ -239,25 +269,51 @@ public class Administrativo extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void CrearPacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CrearPacienteActionPerformed
-        
-        // ######## Registrar nuevo paciente
-        String nombre = JOptionPane.showInputDialog("Nombre del paciente:");
-        String identificacion = JOptionPane.showInputDialog("Identificación:");
-        String cuentasin = JOptionPane.showInputDialog("Cuenta sin @paciente:");
-        String tipoSangre = JOptionPane.showInputDialog("Tipo de sangre:");
-        String FNacimiento = JOptionPane.showInputDialog("Fecha de Nacimiento:");
-        String alergias = JOptionPane.showInputDialog("Alergias:");
-        String cuenta = cuentasin + ("@paciente");
-        
-        Paciente nuevo = new Paciente(nombre, identificacion, cuenta, 
-                                   tipoSangre, FNacimiento, alergias);
-        
-        if (manager.registrarPaciente(nuevo)) {
-            JOptionPane.showMessageDialog(this, "Paciente registrado!");
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        // 1. Definir los tipos de sangre válidos
+    String[] tiposSangre = {"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"};
     
+    // 2. Crear cuadros de diálogo para cada dato
+    String nombre = JOptionPane.showInputDialog(this, "Nombre del paciente:");
+    if (nombre == null || nombre.trim().isEmpty()) return;
+    
+    String identificacion = JOptionPane.showInputDialog(this, "Identificación:");
+    if (identificacion == null || identificacion.trim().isEmpty()) return;
+    
+    String cuentasin = JOptionPane.showInputDialog(this, "Cuenta sin @paciente:");
+    if (cuentasin == null || cuentasin.trim().isEmpty()) return;
+    
+    // 3. Cuadro de diálogo especial para tipo de sangre
+    JComboBox<String> sangreComboBox = new JComboBox<>(tiposSangre);
+    JPanel panelSangre = new JPanel();
+    panelSangre.add(new JLabel("Tipo de Sangre:"));
+    panelSangre.add(sangreComboBox);
+    
+    int resultado = JOptionPane.showConfirmDialog(
+        this, 
+        panelSangre, 
+        "Seleccione Tipo de Sangre", 
+        JOptionPane.OK_CANCEL_OPTION
+    );
+    
+    if (resultado != JOptionPane.OK_OPTION) return;
+    String tipoSangre = (String)sangreComboBox.getSelectedItem();
+    
+    // 4. Resto de los datos
+    String FNacimiento = JOptionPane.showInputDialog(this, "Fecha de Nacimiento (DD/MM/AAAA):");
+    if (FNacimiento == null || FNacimiento.trim().isEmpty()) return;
+    
+    String alergias = JOptionPane.showInputDialog(this, "Alergias:");
+    
+    // 5. Registrar paciente
+    String cuenta = cuentasin + "@paciente";
+    Paciente nuevo = new Paciente(nombre, identificacion, cuenta, 
+                               tipoSangre, FNacimiento, alergias);
+    
+    if (manager.registrarPaciente(nuevo)) {
+        JOptionPane.showMessageDialog(this, "Paciente registrado!");
+    } else {
+        JOptionPane.showMessageDialog(this, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+    }
         
     }//GEN-LAST:event_CrearPacienteActionPerformed
 
@@ -289,6 +345,63 @@ public class Administrativo extends javax.swing.JFrame {
         
     
     }//GEN-LAST:event_crearadminActionPerformed
+
+    private void VerPacientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VerPacientesActionPerformed
+   
+        try {
+        // 1. Obtener lista de pacientes
+        List<Paciente> pacientes = manager.listarPacientes();
+        
+        // 2. Crear modelo de tabla
+        DefaultTableModel model = new DefaultTableModel();
+        
+        // 3. Configurar columnas
+        model.addColumn("Nombre");
+        model.addColumn("Documento");
+        model.addColumn("Cuenta");
+        model.addColumn("Sangre");
+        model.addColumn("Fecha_Nacimiento");
+        model.addColumn("Alergias");
+        
+        // 4. Llenar datos
+        for(Paciente p : pacientes) {
+            model.addRow(new Object[]{
+                p.getNombre(),
+                p.getIdentificacion(),
+                p.getCuenta(),
+                p.getTipoSangre(),
+                p.getFechaNacimiento(),
+                p.getAlergias()
+            });
+        }
+        
+        // 5. Crear y configurar tabla
+        JTable tabla = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        
+        // 6. Mostrar en un diálogo (opción simple)
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Listado de Pacientes",
+            JOptionPane.PLAIN_MESSAGE
+        );
+        
+        // Alternativa: Mostrar en el JFrame principal
+        // jPanel1.removeAll();
+        // jPanel1.add(scrollPane, BorderLayout.CENTER);
+        // jPanel1.revalidate();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar pacientes: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+        
+        
+        
+    }//GEN-LAST:event_VerPacientesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -328,6 +441,7 @@ public class Administrativo extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem CrearPaciente;
+    private javax.swing.JMenuItem VerPacientes;
     private javax.swing.JMenuItem crearadmin;
     private javax.swing.JMenuItem crearmedic;
     private javax.swing.JMenu crearmedico;
@@ -335,11 +449,13 @@ public class Administrativo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;

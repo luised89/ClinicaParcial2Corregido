@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
 
 public class Accesbd {
     
+    public static String usuarioEncontrado;
+    
     private static Connection con;
     private static final String driver = "com.mysql.jdbc.Driver";
     private static final String user = "root";
@@ -41,7 +43,7 @@ public class Accesbd {
         
         try {
             PreparedStatement consulta = con.prepareStatement(
-                "SELECT Id, Nombre, Documento, Cuenta, Pass, Cargo FROM " + tabla);
+                "SELECT Id, Nombre, Documento, Cuenta, Pass FROM " + tabla); // quitamos cargo para evitar conflicto entre admin y medic
             
             ResultSet resultado = consulta.executeQuery();
 
@@ -52,18 +54,18 @@ public class Accesbd {
                 usuario.put("Documento", resultado.getString("Documento"));
                 usuario.put("Cuenta", resultado.getString("Cuenta"));
                 usuario.put("Pass", resultado.getString("Pass"));
-                usuario.put("Cargo", resultado.getString("Cargo"));            
+                //usuario.put("Cargo", resultado.getString("Cargo"));            
                 
                 listaUsuarios.add(usuario);
                 
                 // Mostrar en consola
-                System.out.printf("%-5d %-30s %-20s %-20s %-20s %-20s%n",
+                System.out.printf("%-5d %-30s %-20s %-20s %-20s%n", //quitamos el espacio de cargo
                     usuario.get("Id"),
                     usuario.get("Nombre"),
                     usuario.get("Documento"),
                     usuario.get("Cuenta"),
-                    usuario.get("Pass"),
-                    usuario.get("Cargo"));
+                    usuario.get("Pass"));
+                    //usuario.get("Cargo"));
             }
         } catch (SQLException ex) {
             System.err.println("Error al recuperar usuarios: " + ex.getMessage());
@@ -88,6 +90,7 @@ public class Accesbd {
                 if (clavein.equals(passobt)) {
                     System.out.println("\nUsuario autenticado:");
                     System.out.println("Cuenta: " + cuentaobt);
+                    usuarioEncontrado = cuentaobt;
                     return true;
                 } else {
                     System.out.println("Contraseña incorrecta");
@@ -110,7 +113,7 @@ public class Accesbd {
         
         try {
             PreparedStatement consulta = con.prepareStatement(
-                "SELECT Id, Nombre, Documento, Cuenta, Tipo_Sangre, Fecha_Nacimiento, Alergias FROM " + tabla);
+                "SELECT Id, Nombre, Documento, Cuenta, Sangre, Fecha_Nacimiento, Alergias FROM " + tabla);
             
             ResultSet resultado = consulta.executeQuery();
 
@@ -120,7 +123,7 @@ public class Accesbd {
                 usuario.put("Nombre", resultado.getString("Nombre"));
                 usuario.put("Documento", resultado.getString("Documento"));
                 usuario.put("Cuenta", resultado.getString("Cuenta"));
-                usuario.put("Tipo_sangre", resultado.getString("Tipo_sangre"));
+                usuario.put("Sangre", resultado.getString("Sangre"));
                 usuario.put("Fecha_Nacimiento", resultado.getString("Fecha_Nacimiento")); 
                 usuario.put("Alergias", resultado.getString("Alergias"));
                 
