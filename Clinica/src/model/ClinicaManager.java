@@ -9,6 +9,7 @@ import Conection.Accesbd;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,11 @@ public class ClinicaManager {
         return Accesbd.getListaPacientes(); // SE necesita hacer pública la lista o agregar getter
     }
     
+        //########## Método genérico para ejecutar consultas de citas########
+    private List<Map<String, Object>> ejecutarConsultacit(String tabla) {
+        database.consultarcitas(tabla);
+        return Accesbd.getListaCitas(); // SE necesita hacer pública la lista o agregar getter
+    }
     
     
     
@@ -130,6 +136,28 @@ public class ClinicaManager {
         return pacientes;
     }
 
+    
+    
+        // Listar todas las citas
+    public List<ConsultaMedica> listarCitas() {
+        List<ConsultaMedica> citas = new ArrayList<>();
+        List<Map<String, Object>> resultados = ejecutarConsultacit("citas");
+
+        for (Map<String, Object> fila : resultados) {
+            citas.add(new ConsultaMedica(
+                    (String) fila.get("Paciente"),
+                    (String) fila.get("Cuenta"),
+                    (String) fila.get("TipoCita"),
+                    (String) fila.get("Medico"),
+                    (LocalDateTime) fila.get("FechaHora"),
+                    (String) fila.get("Motivo")
+            ));
+        }
+        return citas;
+    }
+    
+    
+    
     // Métodos similares para Médicos y Administrativos...
     // Autenticación de usuarios (usando el método existente en Accesbd)
     public boolean autenticarUsuario(String cuenta, String clave) {

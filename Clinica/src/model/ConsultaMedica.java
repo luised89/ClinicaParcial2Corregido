@@ -11,29 +11,36 @@ import java.time.LocalDateTime;
 
 public class ConsultaMedica {
 
-    private Paciente paciente;
-    private Medico medico;
+    private String paciente;
+    private String  cuenta;
+    private String tipoCita;
+    private String medico;
     private LocalDateTime fechaHora;
     private String motivo;
-    private String diagnostico;
-    private String tratamiento;
+
     
-    public ConsultaMedica(Paciente paciente, Medico medico, LocalDateTime fechaHora, 
-                   String motivo, String diagnostico, String tratamiento) {
+    public ConsultaMedica(String paciente, String cuenta, String tipoCita, String medico, LocalDateTime fechaHora, 
+                   String motivo) {
         this.paciente = paciente;
+        this.cuenta = cuenta;
+        this.tipoCita = tipoCita;
         this.medico = medico;
         this.fechaHora = fechaHora;
         this.motivo = motivo;
-        this.diagnostico = diagnostico;
-        this.tratamiento = tratamiento;
     }
     
     // Getters y Setters
-    public Paciente getPaciente() { return paciente; }
-    public void setPaciente(Paciente paciente) { this.paciente = paciente; }
+    public String getPaciente() { return paciente; }
+    public void setPaciente(String paciente) { this.paciente = paciente; }
     
-    public Medico getMedico() { return medico; }
-    public void setMedico(Medico medico) { this.medico = medico; }
+    public String getCuenta() { return cuenta; }
+    public void setCuenta(String cuenta) { this.cuenta = cuenta; }   
+    
+    public String getTipoCita() { return tipoCita; }
+    public void setTipoCita(String tipoCita) { this.tipoCita = tipoCita; }
+    
+    public String getMedico() { return medico; }
+    public void setMedico(String medico) { this.medico = medico; }
     
     public LocalDateTime getFechaHora() { return fechaHora; }
     public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
@@ -41,15 +48,9 @@ public class ConsultaMedica {
     public String getMotivo() { return motivo; }
     public void setMotivo(String motivo) { this.motivo = motivo; }
     
-    public String getDiagnostico() { return diagnostico; }
-    public void setDiagnostico(String diagnostico) { this.diagnostico = diagnostico; }
-    
-    public String getTratamiento() { return tratamiento; }
-    public void setTratamiento(String tratamiento) { this.tratamiento = tratamiento; }
-    
     @Override
     public String toString() {
-        return "Consulta: " + paciente.getNombre() + " con Dr. " + medico.getNombre() + 
+        return "Consulta: " + paciente + " con Dr. " + medico + 
                " - " + fechaHora.toString();
     }
 }

@@ -19,6 +19,7 @@ public class Accesbd {
     private static final String url = "jdbc:mysql://localhost:3306/clinica";
     private static List<Map<String, Object>> listaUsuarios = new ArrayList<>(); // Lista para almacenar usuarios
     private static List<Map<String, Object>> listaPacientes = new ArrayList<>(); // Lista para almacenar pacientes
+    private static List<Map<String, Object>> listaCitas = new ArrayList<>(); // Lista para almacenar citas
 
     public String consultageneral() {
         try {
@@ -141,6 +142,40 @@ public class Accesbd {
     
     
     
+        //##### CONSULTAR CITAS Y PONERLAS EN EL MAPA    
+    
+    
+    public void consultarcitas(String tabla) {
+        listaCitas.clear(); // Limpiar lista antes de nueva consulta
+        
+        try {
+            PreparedStatement consulta = con.prepareStatement(
+                "SELECT Id, Paciente, Cuenta, TipoCita, Medico, FechaHora, Motivo FROM " + tabla);
+            
+            ResultSet resultado = consulta.executeQuery();
+
+            while (resultado.next()) {
+                Map<String, Object> usuario = new LinkedHashMap<>(); // Nuevo mapa por cada usuario
+                usuario.put("Id", resultado.getInt("Id"));
+                usuario.put("Paciente", resultado.getString("Paciente"));
+                usuario.put("Cuenta", resultado.getString("Cuenta"));
+                usuario.put("TipoCita", resultado.getString("TipoCita"));
+                usuario.put("Medico", resultado.getString("Medico")); 
+                usuario.put("FechaHora", resultado.getString("FechaHora"));
+                usuario.put("Motivo", resultado.getString("Motivo"));
+                
+                listaCitas.add(usuario);
+                
+                // Mostrar en consola
+                System.out.printf("%-5d %-30%n",
+                    usuario.get("Id"),
+                    usuario.get("Paciente"));                    
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error al recuperar citas: " + ex.getMessage());
+        }
+    }
+    
     /**########################
      * Ejecuta una consulta SQL de actualización (INSERT, UPDATE, DELETE)
      * @param sql La consulta SQL a ejecutar
@@ -163,6 +198,10 @@ public class Accesbd {
     
     public static List<Map<String, Object>> getListaPacientes() {
         return listaPacientes;
+    }
+    
+    public static List<Map<String, Object>> getListaCitas() {
+        return listaCitas;
     }
     
 }

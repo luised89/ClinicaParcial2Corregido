@@ -5,18 +5,23 @@ package view;
  * @author Luis
  */
 import Conection.Accesbd;
+import java.text.SimpleDateFormat;
 import model.ClinicaManager;
 import model.Paciente;
 import model.Medico;
 import model.Administrativomodel;
+import model.ConsultaMedica;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.SpinnerDateModel;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -30,6 +35,7 @@ public class Administrativo extends javax.swing.JFrame {
         initComponents();
         this.manager = new ClinicaManager();
         cargarDatosIniciales();
+        cargarCitas();
     }
     
     //########## SE CARGAN DATOS DE PACIENTES
@@ -61,6 +67,20 @@ public class Administrativo extends javax.swing.JFrame {
     }
     }
     
+
+    
+    //########## SE CARGAN DATOS DE CITAS
+    private void cargarCitas() {
+        try {
+        List<ConsultaMedica> citas = manager.listarCitas();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar citas: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+    }
     
 
     /**
@@ -80,6 +100,7 @@ public class Administrativo extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         crearmedico = new javax.swing.JMenu();
         CrearPaciente = new javax.swing.JMenuItem();
@@ -88,6 +109,7 @@ public class Administrativo extends javax.swing.JFrame {
         jMenu3 = new javax.swing.JMenu();
         VerPacientes = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
+        jMenuItem6 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
@@ -145,6 +167,14 @@ public class Administrativo extends javax.swing.JFrame {
 
         jMenu2.setText("Servicio");
 
+        jMenuItem4.setText("Agenda");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem4);
+
         jMenuItem3.setText("Agendar Cita  ");
         jMenu2.add(jMenuItem3);
 
@@ -190,6 +220,9 @@ public class Administrativo extends javax.swing.JFrame {
 
         jMenuItem5.setText("Medico");
         jMenu3.add(jMenuItem5);
+
+        jMenuItem6.setText("Peticiones hechas por medico");
+        jMenu3.add(jMenuItem6);
 
         jMenuBar1.add(jMenu3);
 
@@ -283,6 +316,7 @@ public class Administrativo extends javax.swing.JFrame {
     if (cuentasin == null || cuentasin.trim().isEmpty()) return;
     
     // 3. Cuadro de diálogo especial para tipo de sangre
+    String FNacimiento = null;
     JComboBox<String> sangreComboBox = new JComboBox<>(tiposSangre);
     JPanel panelSangre = new JPanel();
     panelSangre.add(new JLabel("Tipo de Sangre:"));
@@ -298,10 +332,36 @@ public class Administrativo extends javax.swing.JFrame {
     if (resultado != JOptionPane.OK_OPTION) return;
     String tipoSangre = (String)sangreComboBox.getSelectedItem();
     
-    // 4. Resto de los datos
-    String FNacimiento = JOptionPane.showInputDialog(this, "Fecha de Nacimiento (DD/MM/AAAA):");
-    if (FNacimiento == null || FNacimiento.trim().isEmpty()) return;
+   
+    // Configurar el JSpinner con modelo de fecha
+    SpinnerDateModel spinnerModel = new SpinnerDateModel();
+    JSpinner spinner = new JSpinner(spinnerModel);
+    JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy/MM/dd");
+    spinner.setEditor(editor);
+
+    // Mostrar el diálogo con el JSpinner
+    int option = JOptionPane.showConfirmDialog(
+        this, 
+        spinner, 
+        "Seleccione la fecha de nacimiento - yyyy/MM/dd", 
+        JOptionPane.OK_CANCEL_OPTION
+                                    );
+
+    // Procesar la fecha seleccionada
+    if (option == JOptionPane.OK_OPTION) {
+        Date fechaSeleccionada = (Date) spinner.getValue();
     
+        // Formatear la fecha como String (dd/MM/yyyy)
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        FNacimiento = sdf.format(fechaSeleccionada);
+    
+        // Ahora puedes usar FNacimiento como antes (ej: en SQL o validaciones)
+        JOptionPane.showMessageDialog(this, "Fecha seleccionada: " + FNacimiento);
+    
+        }
+    
+      
+    //#### registrar alergias
     String alergias = JOptionPane.showInputDialog(this, "Alergias:");
     
     // 5. Registrar paciente
@@ -403,6 +463,64 @@ public class Administrativo extends javax.swing.JFrame {
         
     }//GEN-LAST:event_VerPacientesActionPerformed
 
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        
+        //######### Lista de citas   
+         
+        try {
+        // 1. Obtener lista de citas
+        List<ConsultaMedica> citas = manager.listarCitas();
+        
+        // 2. Crear modelo de tabla
+        DefaultTableModel model = new DefaultTableModel();
+        
+        // 3. Configurar columnas
+        model.addColumn("Paciente");
+        model.addColumn("Cuenta");
+        model.addColumn("Tipo de Cita");
+        model.addColumn("Medico");
+        model.addColumn("Fecha y Hora");
+        model.addColumn("Motivo");
+        
+        // 4. Llenar datos
+        for(ConsultaMedica p : citas) {
+            model.addRow(new Object[]{
+                p.getPaciente(),
+                p.getCuenta(),
+                p.getTipoCita(),
+                p.getMedico(),
+                p.getFechaHora(),
+                p.getMotivo()
+            });
+        }
+        
+        // 5. Crear y configurar tabla
+        JTable tabla = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        
+        // 6. Mostrar en un diálogo (opción simple)
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Listado de Citas",
+            JOptionPane.PLAIN_MESSAGE
+        );
+        
+        // Alternativa: Mostrar en el JFrame principal
+        // jPanel1.removeAll();
+        // jPanel1.add(scrollPane, BorderLayout.CENTER);
+        // jPanel1.revalidate();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar citas: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+
+        
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -455,7 +573,9 @@ public class Administrativo extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;
