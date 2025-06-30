@@ -129,6 +129,11 @@ public class Medico extends javax.swing.JFrame {
         jMenu2.add(IniciarCita);
 
         jMenuItem5.setText("Cancelar Cita ");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem5);
 
         jMenuBar1.add(jMenu2);
@@ -246,14 +251,16 @@ public class Medico extends javax.swing.JFrame {
     }//GEN-LAST:event_VerAgendaActionPerformed
 
     private void IniciarCitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IniciarCitaActionPerformed
-                                           
+    
+    int idConsulta = 0;    
+        
     // 1. Pedir ID de la consulta
     String id = JOptionPane.showInputDialog(this, "Digita el ID de la Consulta:");
     if (id == null || id.trim().isEmpty()) return;
 
     // 2. Validar que el ID sea numérico
     try {
-        int idConsulta = Integer.parseInt(id);
+        idConsulta = Integer.parseInt(id);
     } catch (NumberFormatException e) {
         JOptionPane.showMessageDialog(this, "El ID debe ser un número válido", "Error", JOptionPane.ERROR_MESSAGE);
         return;
@@ -291,7 +298,7 @@ public class Medico extends javax.swing.JFrame {
         
         // Llamar al método del manager para actualizar
         boolean actualizacionExitosa = manager.editarCitaSiPendiente(
-            id,
+            idConsulta,
             nuevoEstado,
             historiaClinica
         );
@@ -311,6 +318,77 @@ public class Medico extends javax.swing.JFrame {
     }
 
     }//GEN-LAST:event_IniciarCitaActionPerformed
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+       
+           
+    int idCancel = 0;    
+        
+    // 1. Pedir ID de la consulta
+    String id = JOptionPane.showInputDialog(this, "Digita el ID de la Consulta a Cancelar:");
+    if (id == null || id.trim().isEmpty()) return;
+
+    // 2. Validar que el ID sea numérico
+    try {
+        idCancel = Integer.parseInt(id);
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El ID debe ser un número válido", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // 3. Configurar el nuevo estado
+    String nuevoEstado = "Cancelado";
+
+    // 4. Crear panel personalizado para el motivo
+    JPanel panel = new JPanel(new BorderLayout());
+    
+    // Área de texto para la historia clínica
+    JTextArea txtMotivo = new JTextArea(10, 30);
+    txtMotivo.setLineWrap(true);
+    txtMotivo.setWrapStyleWord(true);
+    JScrollPane scrollPane = new JScrollPane(txtMotivo);
+    
+    // Agregar componentes al panel
+    panel.add(new JLabel("Motivo:"), BorderLayout.NORTH);
+    panel.add(scrollPane, BorderLayout.CENTER);
+
+    // 5. Mostrar el diálogo
+    int opcion = JOptionPane.showConfirmDialog(
+        this,
+        panel,
+        "Actualizar cita #" + id + " a estado: " + nuevoEstado,
+        JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE
+    );
+
+    
+    // 6. Procesar cuando se presiona OK
+    if (opcion == JOptionPane.OK_OPTION) {
+        String motivo = txtMotivo.getText();
+        
+        // Llamar al método del manager para actualizar
+        boolean actualizacionExitosa = manager.editarCitaSiPendiente(
+            idCancel,
+            nuevoEstado,
+            motivo
+        );
+        
+        // Mostrar resultado
+        if (actualizacionExitosa) {
+            JOptionPane.showMessageDialog(this, 
+                "La cita #" + id + " ha sido actualizada a 'Cancelado'",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "No se pudo actualizar la cita. Verifique que existe y está en estado 'Pendiente'",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+        
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     /**
      * @param args the command line arguments

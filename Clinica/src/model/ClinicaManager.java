@@ -212,7 +212,7 @@ public class ClinicaManager {
 }
     
     
-    public boolean editarCitaSiPendiente(String idCita, String nuevoEstado, String nuevaHistoria) {
+    public boolean editarCitaSiPendiente(int idCita, String nuevoEstado, String nuevaHistoria) {
     try {
         // Primero verificamos el estado actual
         String sqlVerificar = "SELECT Estado FROM citas WHERE Id = " + idCita;
