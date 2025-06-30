@@ -14,6 +14,9 @@ import model.Medico;
 import model.Administrativomodel;
 import model.ConsultaMedica;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +38,10 @@ public class Administrativo extends javax.swing.JFrame {
     
     String usrt = Accesbd.usuarioEncontrado;
     String pacent = Accesbd.pacienteEncontrado;
+    String fechaHoraStr = null;
+    String namePaciente = null;
+    LocalDateTime fechaHoraSolicitada = null;
+    
     
     private ClinicaManager manager;
     public Administrativo() {
@@ -58,11 +65,7 @@ public class Administrativo extends javax.swing.JFrame {
     // Convertir la lista a array String[]
     return nombres.toArray(new String[0]);
                                                 }
-    
-    
 
-    
-    
     
     //########## SE CARGAN DATOS DE PACIENTES
     private void cargarDatosIniciales() {
@@ -107,6 +110,49 @@ public class Administrativo extends javax.swing.JFrame {
             JOptionPane.ERROR_MESSAGE);
     }
     }
+    
+//#########ARRAY CON LISTA DE CITAS
+    
+    private List<ConsultaMedica> ListaDeCitas() {
+    try {
+        return manager.listarCitas(); // Devuelve la lista directamente
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar citas: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+        return new ArrayList<>(); // Devuelve lista vacía en caso de error
+    }
+        }
+
+
+        // Cambia el método para usar ConsultaMedica en lugar de Cita
+    public String verificarDisponibilidad(String medicoBuscado, String fechaHoraStr, 
+                                        List<ConsultaMedica> citasExistentes) {
+        try {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime fechaHoraBuscada = LocalDateTime.parse(fechaHoraStr, formatter);
+                    
+            for (ConsultaMedica cita : citasExistentes) {
+                // Verificar si es el mismo médico
+                if (cita.getMedico().equals(medicoBuscado)) {
+                    // Comparar directamente los LocalDateTime
+                    if (cita.getFechaHora().equals(fechaHoraBuscada)) {
+                        return "Error: No disponible - El médico ya tiene cita programada en ese horario";
+                    }
+                }
+            }
+            return "Disponible";
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, 
+                "Error al verificar disponibilidad: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return "Error en verificación";
+                                        }
+    }
+    
+    
     
     
         //########## SE CARGAN DATOS DE MEDICOS
@@ -572,7 +618,7 @@ public class Administrativo extends javax.swing.JFrame {
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
 
         String[] tiposCita = {"Fisioterapia", "General", "Odontologia", "Optometria"};
-        String[] hora = {"9:00:00", "9:30:00", "10:00:00", "10:30:00", "11:00:00", "11:30:00", "13:00:00", "13:30:00",
+        String[] hora = {"09:00:00", "09:30:00", "10:00:00", "10:30:00", "11:00:00", "11:30:00", "13:00:00", "13:30:00",
                             "14:00:00", "14:30:00", "15:00:00", "15:30:00"};
         
            // ######## Registrar nueva Cita
@@ -583,8 +629,10 @@ public class Administrativo extends javax.swing.JFrame {
             Accesbd busq = new Accesbd();
             boolean Acceso = busq.buscarPacientes(cuentapaciente);
             if (Acceso == true){System.out.println("Cuenta verificada");
+                                pacent = Accesbd.pacienteEncontrado;
+                                System.out.println(pacent);
                                 
-                                try {String namePaciente = pacent;
+                                try { namePaciente = pacent;
                                     } catch (Exception e) {   
                                                         }
             } 
@@ -642,14 +690,14 @@ public class Administrativo extends javax.swing.JFrame {
     String FSolicitada = null;
     SpinnerDateModel spinnerModel = new SpinnerDateModel();
     JSpinner spinner = new JSpinner(spinnerModel);
-    JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy/MM/dd");
+    JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy-MM-dd");
     spinner.setEditor(editor);
 
     // Mostrar el diálogo con el JSpinner
     int option = JOptionPane.showConfirmDialog(
         this, 
         spinner, 
-        "Seleccione la fecha de la cita - yyyy/MM/dd", 
+        "Seleccione la fecha de la cita - yyyy-MM-dd", 
         JOptionPane.OK_CANCEL_OPTION
         );
 
@@ -672,54 +720,47 @@ public class Administrativo extends javax.swing.JFrame {
         }
     
         // Formatear la fecha como String (yyyy/MM/dd)
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         FSolicitada = sdf.format(fechaSeleccionada);
     
         JOptionPane.showMessageDialog(this, "Fecha seleccionada: " + FSolicitada);
     }        
     
 
-    try {
     // 1. Combinar fecha y hora
-    String fechaHoraStr = FSolicitada + " " + horaSolicitada;
-    
-    // 2. Parsear a objeto Date
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    Date fechaHora = sdf.parse(fechaHoraStr);
+    fechaHoraStr = FSolicitada + " " + horaSolicitada;
+    // 2. Parsear a objeto DateTime
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    fechaHoraSolicitada = LocalDateTime.parse(fechaHoraStr, formatter);
     
     // 3. Convertir a formato MySQL (yyyy-MM-dd HH:mm:ss)
-    SimpleDateFormat mysqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String mysqlDateTime = mysqlFormat.format(fechaHora);
+//    SimpleDateFormat mysqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//    String mysqlDateTime = mysqlFormat.format(fechaHora);
     
-    System.out.println("DATETIME para MySQL: " + mysqlDateTime);
-    // Ejemplo de resultado: "2023-11-15 14:30:00"
-        } catch (ParseException e) {
-        JOptionPane.showMessageDialog(null, "Error en el formato de fecha/hora: " + e.getMessage());
-        }
+//    System.out.println("DATETIME para MySQL: " + mysqlDateTime); //###### Fecha que se guardara en mysql
+// Ejemplo de resultado: "2023-11-15 14:30:00"
     
         //#### registrar Motivo
         String Motivo = JOptionPane.showInputDialog(this, "Motivo:");
     
+    //########COMPROBAR DISPONIBILIDAD
     
-        
-        String clave2 = JOptionPane.showInputDialog("repetir clave:");
-        String especialidad = JOptionPane.showInputDialog("Especialidad:");
-        String cuenta = cuentasin + ("@medic");
-        
-        if(clave1.equals(clave2)){
-        
-        Medico nuevo = new Medico(nombre, identificacion, cuenta, 
-                                   clave1, especialidad);
-        if (manager.registrarMedico(nuevo)) {
-            JOptionPane.showMessageDialog(this, "Médico registrado!");
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        
-        }else{JOptionPane.showMessageDialog(this, "Las claves no coinciden", "Error", JOptionPane.ERROR_MESSAGE);}
-        
-     
+    String disponibilidad = verificarDisponibilidad(medicoSolicitado, fechaHoraStr, ListaDeCitas());
 
+    if (disponibilidad.equals("Disponible")) {
+        // Proceder a agendar la cita
+        ConsultaMedica nueva = new ConsultaMedica(namePaciente, cuentapaciente, tipoCita, medicoSolicitado,
+                                                   fechaHoraSolicitada, Motivo );
+        if (manager.registrarCita(nueva)) {
+            JOptionPane.showMessageDialog(this, "Cita Registrada!");
+                                            } else {
+            JOptionPane.showMessageDialog(this, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                                                     }
+         
+        } else {
+    // Mostrar error
+    JOptionPane.showMessageDialog(null, resultado, "No disponible", JOptionPane.WARNING_MESSAGE);
+                }
      
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 

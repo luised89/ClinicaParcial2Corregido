@@ -45,10 +45,10 @@ public class ClinicaManager {
         return Accesbd.getListaCitas(); // SE necesita hacer pública la lista o agregar getter
     }
     
-            //########## Método genérico para ejecutar consultas de medicos########
+            //########## Método genérico para ejecutar consultas de medlistaricos########
     private List<Map<String, Object>> ejecutarConsultamedic(String tabla) {
         database.consultarMedico(tabla);
-        return Accesbd.getListaCitas(); // SE necesita hacer pública la lista o agregar getter
+        return Accesbd.getListaMedicos(); // SE necesita hacer pública la lista o agregar getter
     }
     
     
@@ -85,6 +85,23 @@ public class ClinicaManager {
             return false;
         }
     }
+    
+            // Registrar nueva cita ##############
+    public boolean registrarCita(ConsultaMedica cita) {
+        try {
+            String sql = "INSERT INTO citas (Paciente, Cuenta, TipoCita, Medico, FechaHora, Motivo) "
+                    + "VALUES ('" + cita.getPaciente()+ "', '" + cita.getCuenta()+ "', '"
+                    + cita.getTipoCita()+ "', '" + cita.getMedico()+ "', '"+ cita.getFechaHora()+ "', '"
+                    + cita.getMotivo().toString() + "')";
+
+            // Necesitarías agregar un método executeUpdate en Accesbd
+            return database.executeUpdate(sql) > 0;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al registrar cita: " + e.getMessage());
+            return false;
+        }
+    }
+    
     
     
         // Registrar nuevo admin ##############
@@ -172,7 +189,7 @@ public class ClinicaManager {
                     (String) fila.get("Cuenta"),
                     (String) fila.get("TipoCita"),
                     (String) fila.get("Medico"),
-                    (LocalDateTime) fila.get("FechaHora"),
+                    (LocalDateTime) fila.get("FechaHora"), //#############<-------
                     (String) fila.get("Motivo")
             ));
         }

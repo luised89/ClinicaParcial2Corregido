@@ -12,7 +12,9 @@ public class Accesbd {
     
     public static String usuarioEncontrado;
     public static String pacienteEncontrado;
-    
+    public static String medicoEncontrado;
+    public static String citaEncontrada;
+        
     private static Connection con;
     private static final String driver = "com.mysql.jdbc.Driver";
     private static final String user = "root";
@@ -114,29 +116,27 @@ public class Accesbd {
     public static boolean buscarPacientes(String cuenta) {
         if (cuenta == null) {
             System.out.println("Datos de acceso incompletos");
+            JOptionPane.showMessageDialog(null, "❌ Datos de acceso incompletos");
             return false;
-        }
-
+            }
+    
         for (Map<String, Object> mapadeusuario : listaPacientes) {
             String cuentaobt = (String) mapadeusuario.get("Cuenta");
             String nameobt = (String) mapadeusuario.get("Nombre");
-            
+        
             if (cuenta.equals(cuentaobt)) {
                 System.out.println("\nUsuario autenticado:");
-                System.out.println(nameobt+ " - " + cuentaobt);
-                    pacienteEncontrado = nameobt;
-                    return true;
-                } else {
-                    System.out.println("Cuenta incorrecta");
-                    JOptionPane.showMessageDialog(null, "❌ Cuenta incorrecta");
-                    return false;
+                System.out.println(nameobt + " - " + cuentaobt);
+                pacienteEncontrado = nameobt;
+                return true;
                 }
-            }
-       
-        
+         }
+    
+        // Solo muestra este mensaje después de recorrer TODA la lista
         System.out.println("No se encontró la cuenta '" + cuenta + "'");
+        JOptionPane.showMessageDialog(null, "❌ Cuenta incorrecta");
         return false;
-    }
+}
     
     
     //##### CONSULTAR pACIENTES Y PONERLOS EN EL MAPA    
@@ -197,7 +197,7 @@ public class Accesbd {
                 listaMedicos.add(usuario);
                 
                 // Mostrar en consola
-                System.out.printf("%-20d %-30%n",
+                System.out.printf("\"%-30s %-20s%n\"",  // Cambia %d por %s
                     usuario.get("Especialidad"),
                     usuario.get("Nombre"));                    
             }
@@ -228,18 +228,19 @@ public class Accesbd {
                 usuario.put("Cuenta", resultado.getString("Cuenta"));
                 usuario.put("TipoCita", resultado.getString("TipoCita"));
                 usuario.put("Medico", resultado.getString("Medico")); 
-                usuario.put("FechaHora", resultado.getString("FechaHora"));
+                usuario.put("FechaHora", resultado.getTimestamp("FechaHora").toLocalDateTime());
                 usuario.put("Motivo", resultado.getString("Motivo"));
                 
                 listaCitas.add(usuario);
                 
                 // Mostrar en consola
-                System.out.printf("%-5d %-30%n",
-                    usuario.get("Id"),
-                    usuario.get("Paciente"));                    
+                System.out.printf("%-5d %-30s %n",  // %s para String
+                usuario.get("Id"),
+                usuario.get("Paciente"));                   
             }
         } catch (SQLException ex) {
             System.err.println("Error al recuperar citas: " + ex.getMessage());
+                ex.printStackTrace(); // Para debug detallado
         }
     }
     
@@ -269,6 +270,10 @@ public class Accesbd {
     
     public static List<Map<String, Object>> getListaCitas() {
         return listaCitas;
+    }
+    
+    public static List<Map<String, Object>> getListaMedicos() {
+        return listaMedicos;
     }
     
 }
