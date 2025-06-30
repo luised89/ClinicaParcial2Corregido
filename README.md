@@ -1,78 +1,53 @@
-# Proyecto Java: Serialización y Manejo de Archivos
-
-Este proyecto demuestra la implementación de la interfaz `Serializable` en Java y el manejo de archivos utilizando `BufferedReader` y `BufferedWriter`.
+# Proyecto Java: Sistema de Gestión Clínica
+Este proyecto es un sistema de gestión para una clínica desarrollado en Java con interfaz gráfica (Swing). Permite administrar médicos, pacientes y consultas médicas, con autenticación de usuarios según su rol (administrativo o médico).
 
 ## Estructura del Proyecto
 
-El proyecto consta de dos archivos principales:
-
-- `Person.java`: Clase que implementa la interfaz Serializable
-- `SerializationAndFileHandler.java`: Clase principal que demuestra las operaciones de serialización y manejo de archivos
+Clinica/  
+├── Source Packages/  
+│   ├── main.java                # Punto de entrada (abre VentanaPrincipal)  
+│   ├── Conection/  
+│   │   └── Accesbd.java         # Manejo de conexión a base de datos  
+│   ├── model/  
+│   │   ├── Administrativomodel.java  # Lógica de usuarios administrativos  
+│   │   ├── ClinicaManager.java       # Gestión centralizada de operaciones  
+│   │   ├── ConsultaMedica.java       # Modelo de consultas médicas  
+│   │   ├── Medico.java               # Modelo de médicos  
+│   │   ├── Paciente.java             # Modelo de pacientes  
+│   │   └── Persona.java              # Clase base (herencia)  
+│   └── view/  
+│       ├── Administrativo.java       # Interfaz para administrativos  
+│       ├── Medico.java               # Interfaz para médicos  
+│       └── VentanaPrincipal.java     # Ventana de inicio de sesión  
 
 ## Componentes Principales
+### 1. Clases del Modelo
+Persona.java: Clase abstracta base con atributos comunes (nombre, identificación, cuenta).
 
-### 1. Clase Person
-- Implementa la interfaz `Serializable`
-- Contiene atributos básicos: nombre, edad y dirección
-- Incluye un `serialVersionUID` para control de versiones
-- Proporciona getters y setters para todos los atributos
-- Implementa el método `toString()` para mostrar la información del objeto
+Medico.java y Paciente.java: Heredan de Persona y añaden atributos específicos (especialidad, tipo de sangre, alergias).
 
-### 2. Clase SerializationAndFileHandler
-Implementa cuatro operaciones principales:
+ClinicaManager.java: Coordina operaciones como registro de usuarios y consultas.
 
-#### a) Serialización de Objetos
-- Convierte objetos `Person` en un formato binario
-- Guarda los objetos en un archivo `.ser`
-- Utiliza `ObjectOutputStream` para la serialización
+Accesbd.java: Gestiona la conexión y consultas SQL a la base de datos.
 
-#### b) Deserialización de Objetos
-- Lee objetos serializados desde el archivo
-- Convierte los datos binarios de vuelta a objetos `Person`
-- Utiliza `ObjectInputStream` para la deserialización
+### 2. Interfaz Gráfica (View)
+VentanaPrincipal.java: Ventana de inicio de sesión que redirige según el rol:
 
-#### c) Escritura en Archivo de Texto
-- Escribe la información de las personas en un archivo de texto
-- Utiliza `BufferedWriter` para una escritura eficiente
-- Cada persona se escribe en una línea separada
+Administrativos: Acceso a Administrativo.java (gestión de médicos/pacientes).
 
-#### d) Lectura de Archivo de Texto
-- Lee el contenido del archivo de texto
-- Utiliza `BufferedReader` para una lectura eficiente
-- Muestra el contenido línea por línea
+Médicos: Acceso a Medico.java (registro de consultas).
 
-## Archivos Generados
+Las interfaces usan JFrame y componentes Swing (JOptionPane, JTextField, etc.).
 
-El programa genera dos archivos durante su ejecución:
+### 3. Autenticación y Roles
+Los usuarios se registran con cuentas únicas:
 
-1. `personas.ser`: Archivo binario que contiene los objetos serializados
-2. `personas.txt`: Archivo de texto que contiene la información de las personas
+cuenta@medic para médicos.
 
-## Compilación y Ejecución
+cuenta@admin para administrativos.
 
-Para compilar el proyecto:
-```bash
-javac Person.java SerializationAndFileHandler.java
-```
+Las contraseñas se validan con JPasswordField (caracteres ocultos).
 
-Para ejecutar el programa:
-```bash
-java SerializationAndFileHandler
-```
+## Funcionalidades Clave
 
-## Manejo de Errores
-
-El programa incluye manejo de excepciones para:
-- `IOException`: Errores de entrada/salida
-- `ClassNotFoundException`: Errores durante la deserialización
-
-## Notas Importantes
-
-1. La interfaz `Serializable` no requiere implementación de métodos, solo la declaración de la interfaz.
-2. El `serialVersionUID` es importante para mantener la compatibilidad entre versiones.
-3. Se utilizan bloques try-with-resources para garantizar el cierre adecuado de los recursos.
-4. El programa demuestra buenas prácticas de programación como:
-   - Documentación con JavaDoc
-   - Manejo de recursos
-   - Separación de responsabilidades
-   - Código limpio y mantenible 
+Registro de usuarios (médicos y pacientes) con validación de claves.
