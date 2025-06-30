@@ -217,7 +217,7 @@ public class Accesbd {
         
         try {
             PreparedStatement consulta = con.prepareStatement(
-                "SELECT Id, Paciente, Cuenta, TipoCita, Medico, CuentaMedica, FechaHora, Motivo, Estado FROM " + tabla);
+                "SELECT Id, Paciente, Cuenta, TipoCita, Medico, CuentaMedica, FechaHora, Motivo, Estado, Historia FROM " + tabla);
             
             ResultSet resultado = consulta.executeQuery();
 
@@ -232,6 +232,7 @@ public class Accesbd {
                 usuario.put("FechaHora", resultado.getTimestamp("FechaHora").toLocalDateTime());
                 usuario.put("Motivo", resultado.getString("Motivo"));
                 usuario.put("Estado", resultado.getString("Estado"));
+                usuario.put("Historia", resultado.getString("Historia"));
                 
                 listaCitas.add(usuario);
                 

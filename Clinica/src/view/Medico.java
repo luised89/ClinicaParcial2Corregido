@@ -3,6 +3,7 @@ package view;
 
 import Conection.Accesbd;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -141,6 +142,11 @@ public class Medico extends javax.swing.JFrame {
         jMenu3.setText("Historia Clinica");
 
         jMenuItem6.setText("Ver Historia");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem6);
 
         jMenuBar1.add(jMenu3);
@@ -389,6 +395,81 @@ public class Medico extends javax.swing.JFrame {
 
         
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    
+        String cuentapaciente = JOptionPane.showInputDialog(this, "Digita la cuenta del Paciente");
+        
+        try {
+        //1 obtener lista
+        
+        List<Map<String, Object>> historia = manager.listarCitasComoMap();
+            System.out.println(historia);
+        
+        // 2. Crear modelo de tabla
+        DefaultTableModel model = new DefaultTableModel();
+        
+        // 3. Configurar columnas
+        model.addColumn("Id");
+        model.addColumn("Paciente");
+        model.addColumn("Cuenta");
+        model.addColumn("Tipo de Cita");
+        model.addColumn("Medico");
+        model.addColumn("CuentaMedico");
+        model.addColumn("Fecha y Hora");
+        model.addColumn("Motivo");
+        model.addColumn("Estado");
+        model.addColumn("Historia");
+        
+        // 4. Llenar datos
+        for(Map<String, Object> p : historia) {
+            // Verificar que la cuenta médica coincide con usrt
+            if(cuentapaciente.equals(p.get("Cuenta"))) {
+            model.addRow(new Object[]{
+                p.get("Id"),           
+                p.get("Paciente"),
+                p.get("Cuenta"),
+                p.get("TipoCita"),     
+                p.get("Medico"),
+                p.get("CuentaMedica"),  
+                p.get("FechaHora"),
+                p.get("Motivo"),
+                p.get("Estado"),
+                p.get("Historia")    
+            });
+          }  
+        
+        }
+            
+        // 5. Crear y configurar tabla
+        JTable tabla = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        
+        // Configurar tamaño preferido (ancho, alto)
+        scrollPane.setPreferredSize(new Dimension(800, 400)); // Ajusta estos valores según necesites
+
+        
+        // 6. Mostrar en un diálogo (opción simple)
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Historia Clinica",
+            JOptionPane.PLAIN_MESSAGE
+        );
+        
+        // Alternativa: Mostrar en el JFrame principal
+        // jPanel1.removeAll();
+        // jPanel1.add(scrollPane, BorderLayout.CENTER);
+        // jPanel1.revalidate();
+        
+            } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar citas: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+        
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     /**
      * @param args the command line arguments
