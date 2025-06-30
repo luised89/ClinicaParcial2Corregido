@@ -217,7 +217,7 @@ public class Accesbd {
         
         try {
             PreparedStatement consulta = con.prepareStatement(
-                "SELECT Id, Paciente, Cuenta, TipoCita, Medico, FechaHora, Motivo FROM " + tabla);
+                "SELECT Id, Paciente, Cuenta, TipoCita, Medico, CuentaMedica, FechaHora, Motivo, Estado FROM " + tabla);
             
             ResultSet resultado = consulta.executeQuery();
 
@@ -228,8 +228,10 @@ public class Accesbd {
                 usuario.put("Cuenta", resultado.getString("Cuenta"));
                 usuario.put("TipoCita", resultado.getString("TipoCita"));
                 usuario.put("Medico", resultado.getString("Medico")); 
+                usuario.put("CuentaMedica", resultado.getString("CuentaMedica")); 
                 usuario.put("FechaHora", resultado.getTimestamp("FechaHora").toLocalDateTime());
                 usuario.put("Motivo", resultado.getString("Motivo"));
+                usuario.put("Estado", resultado.getString("Estado"));
                 
                 listaCitas.add(usuario);
                 
@@ -275,5 +277,14 @@ public class Accesbd {
     public static List<Map<String, Object>> getListaMedicos() {
         return listaMedicos;
     }
+    
+    public ResultSet executeQuery(String sql) throws SQLException {
+    if (con == null || con.isClosed()) {
+        throw new SQLException("Conexión no disponible");
+    }
+    
+    Statement stmt = con.createStatement();
+    return stmt.executeQuery(sql);
+}
     
 }

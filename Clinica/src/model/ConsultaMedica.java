@@ -15,16 +15,18 @@ public class ConsultaMedica {
     private String  cuenta;
     private String tipoCita;
     private String medico;
+    private String cuentamedico;
     private LocalDateTime fechaHora;
     private String motivo;
 
     
-    public ConsultaMedica(String paciente, String cuenta, String tipoCita, String medico, LocalDateTime fechaHora, 
-                   String motivo) {
+    public ConsultaMedica(String paciente, String cuenta, String tipoCita, String medico, String cuentamedico,
+                            LocalDateTime fechaHora, String motivo) {
         this.paciente = paciente;
         this.cuenta = cuenta;
         this.tipoCita = tipoCita;
         this.medico = medico;
+        this.cuentamedico = cuentamedico;
         this.fechaHora = fechaHora;
         this.motivo = motivo;
     }
@@ -41,6 +43,9 @@ public class ConsultaMedica {
     
     public String getMedico() { return medico; }
     public void setMedico(String medico) { this.medico = medico; }
+    
+    public String getCuentaMedico() { return cuentamedico; }
+    public void setCuentaMedico(String medico) { this.cuentamedico = cuentamedico; }    
     
     public LocalDateTime getFechaHora() { return fechaHora; }
     public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }

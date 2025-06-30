@@ -89,10 +89,14 @@ public class ClinicaManager {
             // Registrar nueva cita ##############
     public boolean registrarCita(ConsultaMedica cita) {
         try {
-            String sql = "INSERT INTO citas (Paciente, Cuenta, TipoCita, Medico, FechaHora, Motivo) "
-                    + "VALUES ('" + cita.getPaciente()+ "', '" + cita.getCuenta()+ "', '"
-                    + cita.getTipoCita()+ "', '" + cita.getMedico()+ "', '"+ cita.getFechaHora()+ "', '"
-                    + cita.getMotivo().toString() + "')";
+            String sql = "INSERT INTO citas (Paciente, Cuenta, TipoCita, Medico, CuentaMedica, FechaHora, Motivo) "
+                    + "VALUES ('" + cita.getPaciente() + "', '" 
+                + cita.getCuenta() + "', '" 
+                + cita.getTipoCita() + "', '" 
+                + cita.getMedico() + "', '" 
+                + cita.getCuentaMedico() + "', '"  
+                + cita.getFechaHora() + "', '" 
+                + cita.getMotivo().toString() + "')";
 
             // Necesitarías agregar un método executeUpdate en Accesbd
             return database.executeUpdate(sql) > 0;
@@ -189,12 +193,62 @@ public class ClinicaManager {
                     (String) fila.get("Cuenta"),
                     (String) fila.get("TipoCita"),
                     (String) fila.get("Medico"),
-                    (LocalDateTime) fila.get("FechaHora"), //#############<-------
+                    (String) fila.get("CuentaMedico"),
+                    (LocalDateTime) fila.get("FechaHora"), 
                     (String) fila.get("Motivo")
             ));
         }
         return citas;
     }
+    
+    
+    ///## lista de citas con Id
+    
+    public List<Map<String, Object>> listarCitasComoMap() {
+    List<Map<String, Object>> resultados = ejecutarConsultacit("citas");
+    
+    // Opcional: puedes transformar o filtrar los datos aquí si es necesario
+    return new ArrayList<>(resultados); // Devuelve una copia
+}
+    
+    
+    public boolean editarCitaSiPendiente(String idCita, String nuevoEstado, String nuevaHistoria) {
+    try {
+        // Primero verificamos el estado actual
+        String sqlVerificar = "SELECT Estado FROM citas WHERE Id = " + idCita;
+        ResultSet resultado = database.executeQuery(sqlVerificar);
+        
+        if (!resultado.next()) {
+            JOptionPane.showMessageDialog(null, "No se encontró la cita con ID: " + idCita, 
+                                       "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
+        String estadoActual = resultado.getString("Estado");
+        if (!"Pendiente".equalsIgnoreCase(estadoActual)) {
+            JOptionPane.showMessageDialog(null, 
+                "Solo se pueden editar citas en estado 'Pendiente'\nEstado actual: " + estadoActual, 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        
+        // Si está pendiente, procedemos con la actualización
+        String sqlActualizar = "UPDATE citas SET "
+                            + "Estado = '" + nuevoEstado + "', "
+                            + "Historia = '" + (nuevaHistoria != null ? nuevaHistoria : "") + "' "
+                            + "WHERE Id = " + idCita;
+        
+        return database.executeUpdate(sqlActualizar) > 0;
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al editar cita: " + e.getMessage(), 
+                                   "Error", JOptionPane.ERROR_MESSAGE);
+        return false;
+    }
+}
+    
+    
+    
     
     
     

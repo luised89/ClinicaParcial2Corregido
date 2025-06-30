@@ -65,6 +65,16 @@ public class Administrativo extends javax.swing.JFrame {
     // Convertir la lista a array String[]
     return nombres.toArray(new String[0]);
                                                 }
+    
+    
+public String obtenerCuentaMedica(String nombre) {
+    return manager.listarMedicos().stream()
+            .filter(medico -> nombre.equals(medico.getNombre()))
+            .map(Medico::getCuenta)
+            .findFirst()
+            .orElse(null);  // Devuelve null si no encuentra al médico
+    }
+    
 
     
     //########## SE CARGAN DATOS DE PACIENTES
@@ -669,10 +679,13 @@ public class Administrativo extends javax.swing.JFrame {
         if (resultado2 != JOptionPane.OK_OPTION) return;
         String medicoSolicitado = (String)namemedicComboBox.getSelectedItem();    
         
+        String ctamedica = obtenerCuentaMedica(medicoSolicitado);
+        System.out.println("aqui va la cuenta "+ ctamedica);
+        
  
         JComboBox<String> horaComboBox = new JComboBox<>(hora);
         JPanel panelhora = new JPanel();
-        panelhora.add(new JLabel("Medicos:"));
+        panelhora.add(new JLabel("Hora:"));
         panelhora.add(horaComboBox);
     
         int resultado3 = JOptionPane.showConfirmDialog(
@@ -750,7 +763,8 @@ public class Administrativo extends javax.swing.JFrame {
     if (disponibilidad.equals("Disponible")) {
         // Proceder a agendar la cita
         ConsultaMedica nueva = new ConsultaMedica(namePaciente, cuentapaciente, tipoCita, medicoSolicitado,
-                                                   fechaHoraSolicitada, Motivo );
+                                                   ctamedica, fechaHoraSolicitada, Motivo );
+        
         if (manager.registrarCita(nueva)) {
             JOptionPane.showMessageDialog(this, "Cita Registrada!");
                                             } else {

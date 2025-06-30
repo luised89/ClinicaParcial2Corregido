@@ -1,22 +1,41 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package view;
+
+import Conection.Accesbd;
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.table.DefaultTableModel;
+import model.ClinicaManager;
+import model.ConsultaMedica;
 
 /**
  *
  * @author Luis
  */
+
+    
+
 public class Medico extends javax.swing.JFrame {
 
     /**
      * Creates new form Medico
      */
+    String usrt = Accesbd.usuarioEncontrado;
+    
+    private ClinicaManager manager;
     public Medico() {
         initComponents();
-    }
-
+        this.manager = new ClinicaManager();
+     }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -34,9 +53,11 @@ public class Medico extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        VerAgenda = new javax.swing.JMenuItem();
+        IniciarCita = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        jMenuItem6 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -44,7 +65,7 @@ public class Medico extends javax.swing.JFrame {
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Acceso Médico");
 
-        jLabel2.setText("usuario");
+        jLabel2.setText(usrt);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -72,6 +93,11 @@ public class Medico extends javax.swing.JFrame {
         jMenu1.setText("Usuario");
 
         jMenuItem1.setText("Cambiar de Usuario ");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem1);
 
         jMenuItem2.setText("Salir");
@@ -86,16 +112,33 @@ public class Medico extends javax.swing.JFrame {
 
         jMenu2.setText("Agenda");
 
-        jMenuItem3.setText("Ver Agenda ");
-        jMenu2.add(jMenuItem3);
+        VerAgenda.setText("Ver Agenda ");
+        VerAgenda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VerAgendaActionPerformed(evt);
+            }
+        });
+        jMenu2.add(VerAgenda);
 
-        jMenuItem4.setText("Iniciar Cita ");
-        jMenu2.add(jMenuItem4);
+        IniciarCita.setText("Iniciar Cita ");
+        IniciarCita.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IniciarCitaActionPerformed(evt);
+            }
+        });
+        jMenu2.add(IniciarCita);
 
         jMenuItem5.setText("Cancelar Cita ");
         jMenu2.add(jMenuItem5);
 
         jMenuBar1.add(jMenu2);
+
+        jMenu3.setText("Historia Clinica");
+
+        jMenuItem6.setText("Ver Historia");
+        jMenu3.add(jMenuItem6);
+
+        jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
 
@@ -114,8 +157,160 @@ public class Medico extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        // TODO add your handling code here:
+           System.exit(0);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+
+       
+        try {
+            // Crear y mostrar nuevo frame
+            VentanaPrincipal nuevoFrame = new VentanaPrincipal();
+            nuevoFrame.setLocationRelativeTo(null); // Centrar en pantalla
+            nuevoFrame.setVisible(true);
+
+            // Cerrar el frame actual
+            this.dispose();
+        } catch (Exception e) {
+
+        }
+
+    
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void VerAgendaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VerAgendaActionPerformed
+        
+        try {
+        //1 obtener lista
+        
+        List<Map<String, Object>> citas = manager.listarCitasComoMap();
+        
+        // 2. Crear modelo de tabla
+        DefaultTableModel model = new DefaultTableModel();
+        
+        // 3. Configurar columnas
+        model.addColumn("Id");
+        model.addColumn("Paciente");
+        model.addColumn("Cuenta");
+        model.addColumn("Tipo de Cita");
+        model.addColumn("Medico");
+        model.addColumn("CuentaMedico");
+        model.addColumn("Fecha y Hora");
+        model.addColumn("Motivo");
+        model.addColumn("Estado");
+        
+        // 4. Llenar datos
+        for(Map<String, Object> p : citas) {
+            // Verificar que la cuenta médica coincide con usrt
+            if(usrt.equals(p.get("CuentaMedica"))) {
+                if("Pendiente".equals(p.get("Estado"))){
+            model.addRow(new Object[]{
+                p.get("Id"),           
+                p.get("Paciente"),
+                p.get("Cuenta"),
+                p.get("TipoCita"),     
+                p.get("Medico"),
+                p.get("CuentaMedica"),  
+                p.get("FechaHora"),
+                p.get("Motivo"),
+                p.get("Estado")
+            });
+          }  
+        }
+        }
+            
+        // 5. Crear y configurar tabla
+        JTable tabla = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        
+        // 6. Mostrar en un diálogo (opción simple)
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Listado de Citas",
+            JOptionPane.PLAIN_MESSAGE
+        );
+        
+        // Alternativa: Mostrar en el JFrame principal
+        // jPanel1.removeAll();
+        // jPanel1.add(scrollPane, BorderLayout.CENTER);
+        // jPanel1.revalidate();
+        
+            } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar citas: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+        
+    }//GEN-LAST:event_VerAgendaActionPerformed
+
+    private void IniciarCitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IniciarCitaActionPerformed
+                                           
+    // 1. Pedir ID de la consulta
+    String id = JOptionPane.showInputDialog(this, "Digita el ID de la Consulta:");
+    if (id == null || id.trim().isEmpty()) return;
+
+    // 2. Validar que el ID sea numérico
+    try {
+        int idConsulta = Integer.parseInt(id);
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "El ID debe ser un número válido", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // 3. Configurar el nuevo estado
+    String nuevoEstado = "Realizado";
+
+    // 4. Crear panel personalizado para la historia clínica
+    JPanel panel = new JPanel(new BorderLayout());
+    
+    // Área de texto para la historia clínica
+    JTextArea txtHistoria = new JTextArea(10, 30);
+    txtHistoria.setLineWrap(true);
+    txtHistoria.setWrapStyleWord(true);
+    JScrollPane scrollPane = new JScrollPane(txtHistoria);
+    
+    // Agregar componentes al panel
+    panel.add(new JLabel("Historia clínica:"), BorderLayout.NORTH);
+    panel.add(scrollPane, BorderLayout.CENTER);
+
+    // 5. Mostrar el diálogo
+    int opcion = JOptionPane.showConfirmDialog(
+        this,
+        panel,
+        "Actualizar cita #" + id + " a estado: " + nuevoEstado,
+        JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE
+    );
+
+    
+    // 6. Procesar cuando se presiona OK
+    if (opcion == JOptionPane.OK_OPTION) {
+        String historiaClinica = txtHistoria.getText();
+        
+        // Llamar al método del manager para actualizar
+        boolean actualizacionExitosa = manager.editarCitaSiPendiente(
+            id,
+            nuevoEstado,
+            historiaClinica
+        );
+        
+        // Mostrar resultado
+        if (actualizacionExitosa) {
+            JOptionPane.showMessageDialog(this, 
+                "La cita #" + id + " ha sido actualizada a 'Realizado'",
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "No se pudo actualizar la cita. Verifique que existe y está en estado 'Pendiente'",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    }//GEN-LAST:event_IniciarCitaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -153,16 +348,18 @@ public class Medico extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem IniciarCita;
+    private javax.swing.JMenuItem VerAgenda;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }
