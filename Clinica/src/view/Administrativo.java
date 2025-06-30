@@ -5,6 +5,8 @@ package view;
  * @author Luis
  */
 import Conection.Accesbd;
+import static Conection.Accesbd.usuarioEncontrado;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import model.ClinicaManager;
 import model.Paciente;
@@ -12,8 +14,11 @@ import model.Medico;
 import model.Administrativomodel;
 import model.ConsultaMedica;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -29,6 +34,7 @@ public class Administrativo extends javax.swing.JFrame {
     
     
     String usrt = Accesbd.usuarioEncontrado;
+    String pacent = Accesbd.pacienteEncontrado;
     
     private ClinicaManager manager;
     public Administrativo() {
@@ -36,7 +42,27 @@ public class Administrativo extends javax.swing.JFrame {
         this.manager = new ClinicaManager();
         cargarDatosIniciales();
         cargarCitas();
+        cargarMedicos();
     }
+    
+    
+    public String[] obtenerNombresMedicosPorEspecialidad(String tipoEspecialidad) {
+    List<Medico> medicos = manager.listarMedicos();
+    
+    // Filtrar médicos por especialidad y mapear a sus nombres
+    List<String> nombres = medicos.stream()
+        .filter(medico -> tipoEspecialidad.equals(medico.getEspecialidad()))
+        .map(Medico::getNombre)
+        .collect(Collectors.toList());
+    
+    // Convertir la lista a array String[]
+    return nombres.toArray(new String[0]);
+                                                }
+    
+    
+
+    
+    
     
     //########## SE CARGAN DATOS DE PACIENTES
     private void cargarDatosIniciales() {
@@ -82,6 +108,19 @@ public class Administrativo extends javax.swing.JFrame {
     }
     }
     
+    
+        //########## SE CARGAN DATOS DE MEDICOS
+    private void cargarMedicos() {
+        try {
+        List<Medico> medicos = manager.listarMedicos();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar medicos: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -108,7 +147,7 @@ public class Administrativo extends javax.swing.JFrame {
         crearadmin = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         VerPacientes = new javax.swing.JMenuItem();
-        jMenuItem5 = new javax.swing.JMenuItem();
+        verMedicos = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
@@ -176,6 +215,11 @@ public class Administrativo extends javax.swing.JFrame {
         jMenu2.add(jMenuItem4);
 
         jMenuItem3.setText("Agendar Cita  ");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem3);
 
         jMenuBar1.add(jMenu2);
@@ -218,8 +262,13 @@ public class Administrativo extends javax.swing.JFrame {
         });
         jMenu3.add(VerPacientes);
 
-        jMenuItem5.setText("Medico");
-        jMenu3.add(jMenuItem5);
+        verMedicos.setText("Medico");
+        verMedicos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                verMedicosActionPerformed(evt);
+            }
+        });
+        jMenu3.add(verMedicos);
 
         jMenuItem6.setText("Peticiones hechas por medico");
         jMenu3.add(jMenuItem6);
@@ -316,7 +365,7 @@ public class Administrativo extends javax.swing.JFrame {
     if (cuentasin == null || cuentasin.trim().isEmpty()) return;
     
     // 3. Cuadro de diálogo especial para tipo de sangre
-    String FNacimiento = null;
+
     JComboBox<String> sangreComboBox = new JComboBox<>(tiposSangre);
     JPanel panelSangre = new JPanel();
     panelSangre.add(new JLabel("Tipo de Sangre:"));
@@ -334,6 +383,7 @@ public class Administrativo extends javax.swing.JFrame {
     
    
     // Configurar el JSpinner con modelo de fecha
+    String FNacimiento = null;
     SpinnerDateModel spinnerModel = new SpinnerDateModel();
     JSpinner spinner = new JSpinner(spinnerModel);
     JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy/MM/dd");
@@ -355,9 +405,7 @@ public class Administrativo extends javax.swing.JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         FNacimiento = sdf.format(fechaSeleccionada);
     
-        // Ahora puedes usar FNacimiento como antes (ej: en SQL o validaciones)
         JOptionPane.showMessageDialog(this, "Fecha seleccionada: " + FNacimiento);
-    
         }
     
       
@@ -521,6 +569,213 @@ public class Administrativo extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+
+        String[] tiposCita = {"Fisioterapia", "General", "Odontologia", "Optometria"};
+        String[] hora = {"9:00:00", "9:30:00", "10:00:00", "10:30:00", "11:00:00", "11:30:00", "13:00:00", "13:30:00",
+                            "14:00:00", "14:30:00", "15:00:00", "15:30:00"};
+        
+           // ######## Registrar nueva Cita
+
+        
+        String cuentapaciente = JOptionPane.showInputDialog("Digite la cuenta:");
+        
+            Accesbd busq = new Accesbd();
+            boolean Acceso = busq.buscarPacientes(cuentapaciente);
+            if (Acceso == true){System.out.println("Cuenta verificada");
+                                
+                                try {String namePaciente = pacent;
+                                    } catch (Exception e) {   
+                                                        }
+            } 
+        
+        JComboBox<String> tipoComboBox = new JComboBox<>(tiposCita);
+        JPanel paneltipoCita = new JPanel();
+        paneltipoCita.add(new JLabel("Tipo de Cita:"));
+        paneltipoCita.add(tipoComboBox);
+    
+        int resultado = JOptionPane.showConfirmDialog(
+        this, 
+        paneltipoCita, 
+        "Seleccione Tipo de Cita", 
+        JOptionPane.OK_CANCEL_OPTION
+                                        );
+        
+        if (resultado != JOptionPane.OK_OPTION) return;
+        String tipoCita = (String)tipoComboBox.getSelectedItem();    
+        
+        String[] NombresDeMedicos = obtenerNombresMedicosPorEspecialidad(tipoCita);
+        
+        JComboBox<String> namemedicComboBox = new JComboBox<>(NombresDeMedicos);
+        JPanel panelmedics = new JPanel();
+        panelmedics.add(new JLabel("Medicos:"));
+        panelmedics.add(namemedicComboBox);
+    
+        int resultado2 = JOptionPane.showConfirmDialog(
+        this, 
+        panelmedics, 
+        "Seleccione el medico", 
+        JOptionPane.OK_CANCEL_OPTION
+                                        );
+        
+        if (resultado2 != JOptionPane.OK_OPTION) return;
+        String medicoSolicitado = (String)namemedicComboBox.getSelectedItem();    
+        
+ 
+        JComboBox<String> horaComboBox = new JComboBox<>(hora);
+        JPanel panelhora = new JPanel();
+        panelhora.add(new JLabel("Medicos:"));
+        panelhora.add(horaComboBox);
+    
+        int resultado3 = JOptionPane.showConfirmDialog(
+        this, 
+        panelhora, 
+        "Seleccione la hora", 
+        JOptionPane.OK_CANCEL_OPTION
+                                        );
+        
+        if (resultado3 != JOptionPane.OK_OPTION) return;
+        String horaSolicitada = (String)horaComboBox.getSelectedItem();    
+ 
+
+    // Configurar el JSpinner con modelo de fecha
+    String FSolicitada = null;
+    SpinnerDateModel spinnerModel = new SpinnerDateModel();
+    JSpinner spinner = new JSpinner(spinnerModel);
+    JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy/MM/dd");
+    spinner.setEditor(editor);
+
+    // Mostrar el diálogo con el JSpinner
+    int option = JOptionPane.showConfirmDialog(
+        this, 
+        spinner, 
+        "Seleccione la fecha de la cita - yyyy/MM/dd", 
+        JOptionPane.OK_CANCEL_OPTION
+        );
+
+    // Procesar la fecha seleccionada
+    if (option == JOptionPane.OK_OPTION) {
+        Date fechaSeleccionada = (Date) spinner.getValue();
+    
+        // Crear un calendario para verificar el día de la semana
+        Calendar calendario = Calendar.getInstance();
+        calendario.setTime(fechaSeleccionada);
+        int diaSemana = calendario.get(Calendar.DAY_OF_WEEK);
+    
+        // Verificar si es sábado (7) o domingo (1)
+        if (diaSemana == Calendar.SATURDAY || diaSemana == Calendar.SUNDAY) {
+            JOptionPane.showMessageDialog(this, 
+            "Error: No se permiten citas los sábados ni domingos", 
+            "Día no válido", 
+            JOptionPane.ERROR_MESSAGE);
+            return; // Salir del método o volver a mostrar el diálogo
+        }
+    
+        // Formatear la fecha como String (yyyy/MM/dd)
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        FSolicitada = sdf.format(fechaSeleccionada);
+    
+        JOptionPane.showMessageDialog(this, "Fecha seleccionada: " + FSolicitada);
+    }        
+    
+
+    try {
+    // 1. Combinar fecha y hora
+    String fechaHoraStr = FSolicitada + " " + horaSolicitada;
+    
+    // 2. Parsear a objeto Date
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    Date fechaHora = sdf.parse(fechaHoraStr);
+    
+    // 3. Convertir a formato MySQL (yyyy-MM-dd HH:mm:ss)
+    SimpleDateFormat mysqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String mysqlDateTime = mysqlFormat.format(fechaHora);
+    
+    System.out.println("DATETIME para MySQL: " + mysqlDateTime);
+    // Ejemplo de resultado: "2023-11-15 14:30:00"
+        } catch (ParseException e) {
+        JOptionPane.showMessageDialog(null, "Error en el formato de fecha/hora: " + e.getMessage());
+        }
+    
+        //#### registrar Motivo
+        String Motivo = JOptionPane.showInputDialog(this, "Motivo:");
+    
+    
+        
+        String clave2 = JOptionPane.showInputDialog("repetir clave:");
+        String especialidad = JOptionPane.showInputDialog("Especialidad:");
+        String cuenta = cuentasin + ("@medic");
+        
+        if(clave1.equals(clave2)){
+        
+        Medico nuevo = new Medico(nombre, identificacion, cuenta, 
+                                   clave1, especialidad);
+        if (manager.registrarMedico(nuevo)) {
+            JOptionPane.showMessageDialog(this, "Médico registrado!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        }else{JOptionPane.showMessageDialog(this, "Las claves no coinciden", "Error", JOptionPane.ERROR_MESSAGE);}
+        
+     
+
+     
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void verMedicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verMedicosActionPerformed
+
+        try {
+        // 1. Obtener lista de medicos
+        List<Medico> medicos = manager.listarMedicos();
+        
+        // 2. Crear modelo de tabla
+        DefaultTableModel model = new DefaultTableModel();
+        
+        // 3. Configurar columnas
+        model.addColumn("Nombre");
+        model.addColumn("Documento");
+        model.addColumn("Cuenta");
+        model.addColumn("Especialidad");
+        
+        // 4. Llenar datos
+        for(Medico p : medicos) {
+            model.addRow(new Object[]{
+                p.getNombre(),
+                p.getIdentificacion(),
+                p.getCuenta(),
+                p.getEspecialidad()
+            });
+        }
+        
+        // 5. Crear y configurar tabla
+        JTable tabla = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(tabla);
+        
+        // 6. Mostrar en un diálogo (opción simple)
+        JOptionPane.showMessageDialog(
+            this,
+            scrollPane,
+            "Listado de Medicos",
+            JOptionPane.PLAIN_MESSAGE
+        );
+        
+        // Alternativa: Mostrar en el JFrame principal
+        // jPanel1.removeAll();
+        // jPanel1.add(scrollPane, BorderLayout.CENTER);
+        // jPanel1.revalidate();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al cargar pacientes: " + e.getMessage(), 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+    }
+        
+      
+       
+    }//GEN-LAST:event_verMedicosActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -574,10 +829,10 @@ public class Administrativo extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JMenuItem verMedicos;
     // End of variables declaration//GEN-END:variables
 }

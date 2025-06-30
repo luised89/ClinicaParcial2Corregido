@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 public class Accesbd {
     
     public static String usuarioEncontrado;
+    public static String pacienteEncontrado;
     
     private static Connection con;
     private static final String driver = "com.mysql.jdbc.Driver";
@@ -20,6 +21,7 @@ public class Accesbd {
     private static List<Map<String, Object>> listaUsuarios = new ArrayList<>(); // Lista para almacenar usuarios
     private static List<Map<String, Object>> listaPacientes = new ArrayList<>(); // Lista para almacenar pacientes
     private static List<Map<String, Object>> listaCitas = new ArrayList<>(); // Lista para almacenar citas
+    private static List<Map<String, Object>> listaMedicos = new ArrayList<>(); // Lista para almacenar citas
 
     public String consultageneral() {
         try {
@@ -106,6 +108,37 @@ public class Accesbd {
     }
     
     
+    
+        //#######BUSCAR PACIENTES EN EL MAPA
+    
+    public static boolean buscarPacientes(String cuenta) {
+        if (cuenta == null) {
+            System.out.println("Datos de acceso incompletos");
+            return false;
+        }
+
+        for (Map<String, Object> mapadeusuario : listaPacientes) {
+            String cuentaobt = (String) mapadeusuario.get("Cuenta");
+            String nameobt = (String) mapadeusuario.get("Nombre");
+            
+            if (cuenta.equals(cuentaobt)) {
+                System.out.println("\nUsuario autenticado:");
+                System.out.println(nameobt+ " - " + cuentaobt);
+                    pacienteEncontrado = nameobt;
+                    return true;
+                } else {
+                    System.out.println("Cuenta incorrecta");
+                    JOptionPane.showMessageDialog(null, "❌ Cuenta incorrecta");
+                    return false;
+                }
+            }
+       
+        
+        System.out.println("No se encontró la cuenta '" + cuenta + "'");
+        return false;
+    }
+    
+    
     //##### CONSULTAR pACIENTES Y PONERLOS EN EL MAPA    
     
     
@@ -139,6 +172,40 @@ public class Accesbd {
             System.err.println("Error al recuperar pacientes: " + ex.getMessage());
         }
     }
+
+
+    //##### CONSULTAR MEDICOS Y PONERLOS EN EL MAPA    
+    
+    
+    public void consultarMedico(String tabla) {
+        listaMedicos.clear(); // Limpiar lista antes de nueva consulta
+        
+        try {
+            PreparedStatement consulta = con.prepareStatement(
+                "SELECT Id, Nombre, Documento, Cuenta, Especialidad FROM " + tabla);
+            
+            ResultSet resultado = consulta.executeQuery();
+
+            while (resultado.next()) {
+                Map<String, Object> usuario = new LinkedHashMap<>(); // Nuevo mapa por cada usuario
+                usuario.put("Id", resultado.getInt("Id"));
+                usuario.put("Nombre", resultado.getString("Nombre"));
+                usuario.put("Documento", resultado.getString("Documento"));
+                usuario.put("Cuenta", resultado.getString("Cuenta"));
+                usuario.put("Especialidad", resultado.getString("Especialidad"));
+                
+                listaMedicos.add(usuario);
+                
+                // Mostrar en consola
+                System.out.printf("%-20d %-30%n",
+                    usuario.get("Especialidad"),
+                    usuario.get("Nombre"));                    
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error al recuperar medicos: " + ex.getMessage());
+        }
+    }
+ 
     
     
     

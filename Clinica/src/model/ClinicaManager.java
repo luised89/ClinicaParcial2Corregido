@@ -45,6 +45,12 @@ public class ClinicaManager {
         return Accesbd.getListaCitas(); // SE necesita hacer pública la lista o agregar getter
     }
     
+            //########## Método genérico para ejecutar consultas de medicos########
+    private List<Map<String, Object>> ejecutarConsultamedic(String tabla) {
+        database.consultarMedico(tabla);
+        return Accesbd.getListaCitas(); // SE necesita hacer pública la lista o agregar getter
+    }
+    
     
     
     // Registrar nuevo paciente #########
@@ -136,7 +142,24 @@ public class ClinicaManager {
         return pacientes;
     }
 
-    
+
+       // Listar todos los medicos
+    public List<Medico> listarMedicos() {
+        List<Medico> medicos = new ArrayList<>();
+        List<Map<String, Object>> resultados = ejecutarConsultamedic("medico");
+
+        for (Map<String, Object> fila : resultados) {
+            medicos.add(new Medico(
+                    (String) fila.get("Nombre"),
+                    (String) fila.get("Documento"),
+                    (String) fila.get("Cuenta"),
+                    (String) fila.get("Clave"),
+                    (String) fila.get("Especialidad")
+            ));
+        }
+        return medicos;
+    }
+
     
         // Listar todas las citas
     public List<ConsultaMedica> listarCitas() {
